@@ -39,6 +39,29 @@ function bpdd_admin_page_content(){
 		</style>
 		<h2><?php _e('BuddyPress Default Data', 'bpdd') ?> <sup>v<?php echo BPDD_VERSION ?></sup></h2>
 
+		<?php 
+		if(isset($_POST['bpdd-admin-clear']) && !empty($_POST['bpdd-admin-clear'])){
+			global $wpdb;
+			$sqls[] = "TRUNCATE TABLE wp_bp_groups;";
+			$sqls[] = "TRUNCATE TABLE wp_bp_groups_members;";
+			$sqls[] = "TRUNCATE TABLE wp_bp_groups_groupmeta;";
+			$sqls[] = "TRUNCATE TABLE wp_bb_posts;";
+			$sqls[] = "TRUNCATE TABLE wp_bp_messages_recipients;";
+			$sqls[] = "TRUNCATE TABLE wp_bp_messages_messages;";
+			$sqls[] = "TRUNCATE TABLE wp_bp_notifications;";
+			$sqls[] = "DELETE FROM wp_users WHERE ID > 2;";
+			$sqls[] = "DELETE FROM wp_usermeta WHERE user_id > 2;";
+			$sqls[] = "DELETE FROM wp_bp_xprofile_data WHERE user_id > 2;";
+			$sqls[] = "DELETE FROM wp_bb_forums WHERE forum_id > 1;";
+			$sqls[] = "DELETE FROM wp_bp_activity WHERE user_id > 2;";
+			$sqls[] = "DELETE FROM wp_bp_friends WHERE initiator_user_id > 2 OR friend_user_id > 2;";
+			foreach($sqls as $sql){
+				$wpdb->query( $sql );
+			}
+			echo '<div id="message" class="updated fade"><p>Everything deleted</p></div>';
+		}
+		?>
+		
 		<?php if ( isset( $_POST['bpdd-admin-submit'] ) ) :
 			// default values
 			$users = false; 
@@ -49,12 +72,6 @@ function bpdd_admin_page_content(){
 			$groups = false; 
 			$forums = false; 
 			$g_activity = false; 
-			?>
-
-			<?php
-			if(isset($_POST['bpdd-admin-clear']) && !empty($_POST['bpdd-admin-clear'])){
-				
-			}
 			
 			// Import users
 			if(isset($_POST['bpdd']['import-users'])){
