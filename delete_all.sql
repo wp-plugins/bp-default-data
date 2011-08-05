@@ -1,0 +1,13 @@
+TRUNCATE TABLE wp_bp_groups;
+TRUNCATE TABLE wp_bp_groups_members;
+TRUNCATE TABLE wp_bp_groups_groupmeta;
+TRUNCATE TABLE wp_bb_posts;
+DELETE FROM wp_users WHERE ID > 2;
+DELETE FROM wp_usermeta WHERE user_id > 2;
+DELETE FROM wp_bp_xprofile_data WHERE user_id > 2;
+DELETE FROM wp_bb_forums WHERE forum_id > 1;
+DELETE FROM wp_bp_activity WHERE user_id > 2;
+DELETE FROM wp_bp_messages_messages WHERE sender_id > 2;
+DELETE FROM wp_bp_messages_recipients WHERE user_id > 2;
+DELETE FROM wp_bp_notifications WHERE user_id > 2;
+DELETE FROM wp_bp_friends WHERE initiator_user_id > 2 OR friend_user_id > 2;
