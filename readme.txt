@@ -15,6 +15,8 @@ Please use this plugin with caution and not on a live site!
 
 Clear BuddyPress button will truncate tables: messages, groups, notifications, friends and forum posts. All users except one with ID=1 and all corresponding data (usermeta, activity etc) will be deleted too.
 
+And turn off email notifications in profile - or you will spam yourself :)
+
 == Installation ==
 
 1. Upload plugin folder `/bp-default-data/` to the `/wp-content/plugins/` directory
