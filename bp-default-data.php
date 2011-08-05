@@ -4,14 +4,14 @@
  * Plugin URI:  http://ovirium.com
  * Description: Plugin will create lots of users, groups, topics, activity items - useful for testing purpose.
  * Author:      slaFFik
- * Version:     0.3.5
+ * Version:     0.4
  * Author URI:  http://cosydale.com
  */
 
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
-define('BPDD_VERSION', '0.3.5');
+define('BPDD_VERSION', '0.4');
 
 add_action('bp_init', 'bpdd_init');
 function bpdd_init(){
@@ -42,19 +42,19 @@ function bpdd_admin_page_content(){
 		<?php 
 		if(isset($_POST['bpdd-admin-clear']) && !empty($_POST['bpdd-admin-clear'])){
 			global $wpdb;
-			$sqls[] = "TRUNCATE TABLE wp_bp_groups;";
-			$sqls[] = "TRUNCATE TABLE wp_bp_groups_members;";
-			$sqls[] = "TRUNCATE TABLE wp_bp_groups_groupmeta;";
-			$sqls[] = "TRUNCATE TABLE wp_bb_posts;";
-			$sqls[] = "TRUNCATE TABLE wp_bp_messages_recipients;";
-			$sqls[] = "TRUNCATE TABLE wp_bp_messages_messages;";
-			$sqls[] = "TRUNCATE TABLE wp_bp_notifications;";
-			$sqls[] = "DELETE FROM wp_users WHERE ID > 2;";
-			$sqls[] = "DELETE FROM wp_usermeta WHERE user_id > 2;";
-			$sqls[] = "DELETE FROM wp_bp_xprofile_data WHERE user_id > 2;";
-			$sqls[] = "DELETE FROM wp_bb_forums WHERE forum_id > 1;";
-			$sqls[] = "DELETE FROM wp_bp_activity WHERE user_id > 2;";
-			$sqls[] = "DELETE FROM wp_bp_friends WHERE initiator_user_id > 2 OR friend_user_id > 2;";
+			$sqls[] = "TRUNCATE TABLE {$wpdb->prefix}bp_groups;";
+			$sqls[] = "TRUNCATE TABLE {$wpdb->prefix}bp_groups_members;";
+			$sqls[] = "TRUNCATE TABLE {$wpdb->prefix}bp_groups_groupmeta;";
+			$sqls[] = "TRUNCATE TABLE {$wpdb->prefix}bb_posts;";
+			$sqls[] = "TRUNCATE TABLE {$wpdb->prefix}bp_messages_recipients;";
+			$sqls[] = "TRUNCATE TABLE {$wpdb->prefix}bp_messages_messages;";
+			$sqls[] = "TRUNCATE TABLE {$wpdb->prefix}bp_notifications;";
+			$sqls[] = "TRUNCATE TABLE {$wpdb->prefix}bp_friends;";
+			$sqls[] = "DELETE FROM {$wpdb->prefix}users WHERE ID > 1;";
+			$sqls[] = "DELETE FROM {$wpdb->prefix}usermeta WHERE user_id > 1;";
+			$sqls[] = "DELETE FROM {$wpdb->prefix}bp_xprofile_data WHERE user_id > 1;";
+			$sqls[] = "DELETE FROM {$wpdb->prefix}bb_forums WHERE forum_id > 1;";
+			$sqls[] = "DELETE FROM {$wpdb->prefix}bp_activity WHERE user_id > 1;";
 			foreach($sqls as $sql){
 				$wpdb->query( $sql );
 			}
