@@ -28,7 +28,7 @@ Clear BuddyPress button will truncate tables: messages, groups, notifications, f
 == Changelog ==
 
 = 0.4 =
-* 0.3 + members import (0.1) = 0.4
+* 0.3 + messages import (0.1) = 0.4
 
 = 0.3 =
 * Initial release: admin page (0.1) + users import (0.1) + groups import (0.1) = 0.3
