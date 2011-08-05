@@ -157,7 +157,7 @@ function bpdd_admin_page_content(){
 			});
 			</script>
 			
-			<p><?php _e('Please do not import users twice as this will cause lots of errors (believe me).', 'bpdd'); ?></p>
+			<p><?php _e('Please do not import users twice as this will cause lots of errors (believe me). Just do clearing.', 'bpdd'); ?></p>
 			
 			<ul class="items">
 				<li class="users">
