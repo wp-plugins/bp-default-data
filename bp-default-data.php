@@ -4,14 +4,14 @@
  * Plugin URI:  http://ovirium.com
  * Description: Plugin will create lots of users, groups, topics, activity items - useful for testing purpose.
  * Author:      slaFFik
- * Version:     0.4
+ * Version:     0.5
  * Author URI:  http://cosydale.com
  */
 
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
-define('BPDD_VERSION', '0.4');
+define('BPDD_VERSION', '0.5');
 
 add_action('bp_init', 'bpdd_init');
 function bpdd_init(){
