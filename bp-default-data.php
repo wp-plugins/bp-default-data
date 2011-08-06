@@ -60,9 +60,8 @@ function bpdd_admin_page_content(){
 			}
 			echo '<div id="message" class="updated fade"><p>Everything deleted</p></div>';
 		}
-		?>
 		
-		<?php if ( isset( $_POST['bpdd-admin-submit'] ) ) :
+		if ( isset( $_POST['bpdd-admin-submit'] ) ) {
 			// default values
 			$users = false; 
 			$profile = false; 
@@ -72,6 +71,7 @@ function bpdd_admin_page_content(){
 			$groups = false; 
 			$forums = false; 
 			$g_activity = false; 
+			$g_members = false; 
 			
 			// Import users
 			if(isset($_POST['bpdd']['import-users'])){
@@ -82,7 +82,7 @@ function bpdd_admin_page_content(){
 					$imported['profile'] = count($profile) .' profile entries';
 				}
 				if(isset($_POST['bpdd']['import-messages'])){
-					$messages = bpdd_import_users_messages($users);
+					$messages = bpdd_import_users_messages();
 					$imported['messages'] = count($messages) .' private messages';
 				}
 				if(isset($_POST['bpdd']['import-activity'])){
@@ -99,7 +99,7 @@ function bpdd_admin_page_content(){
 				$groups = bpdd_import_groups($users);
 				$imported['groups'] = count($groups) .' new groups';
 				if(isset($_POST['bpdd']['import-g-members'])){
-					$g_members = bpdd_import_groups_forums($groups);
+					$g_members = bpdd_import_groups_members($groups);
 					$imported['g_members'] = count($g_members) .' groups members (1 user can be in several groups)';
 				}
 				if(isset($_POST['bpdd']['import-forums'])){
@@ -110,7 +110,6 @@ function bpdd_admin_page_content(){
 					$g_activity = bpdd_import_groups_activity($groups);
 					$imported['g_activity'] = count($g_activity) .' groups activity items';
 				}
-				
 			}
 
 			?>
@@ -125,7 +124,8 @@ function bpdd_admin_page_content(){
 				</p>
 			</div>
 
-		<?php endif; ?>
+		<?php 
+		} ?>
 
 		<form action="" method="post" id="bpdd-admin-form">
 			<script type="text/javascript">
@@ -149,7 +149,7 @@ function bpdd_admin_page_content(){
 				});
 				
 				jQuery("input#bpdd-admin-clear").click( function() {
-					if ( confirm( 'Are you sure you want to delete all users (except one with ID=1), groups, messages activities, forum topics etc?' ) ) 
+					if ( confirm( 'Are you sure you want to delete all users (except one with ID=1), groups, messages, activities, forum topics etc?' ) ) 
 						return true; 
 					else
 						return false; 
@@ -158,6 +158,7 @@ function bpdd_admin_page_content(){
 			</script>
 			
 			<p><?php _e('Please do not import users twice as this will cause lots of errors (believe me). Just do clearing.', 'bpdd'); ?></p>
+			<p><?php _e('Please do not mess importing users and their data with groups. Importing is rather heavy process, so please finish with members first and then work with groups.', 'bpdd'); ?></p>
 			
 			<ul class="items">
 				<li class="users">
@@ -212,8 +213,8 @@ function bpdd_admin_page_content(){
 					<ul>
 						<li>
 							<label for="import-g-members">
-								<input type="checkbox"disabled  name="bpdd[import-g-members]" id="import-g-members" value="1" /> &nbsp;
-								<?php _e( 'Do you want to import group members?', 'bpdd' ) ?>
+								<input type="checkbox" name="bpdd[import-g-members]" id="import-g-members" value="1" /> &nbsp;
+								<?php _e( 'Do you want to import group members? Import users before doing this.', 'bpdd' ) ?>
 							</label>
 						</li>
 						<?php if ( bp_is_active( 'groups' ) && bp_is_active( 'activity' ) ) : ?>
@@ -254,7 +255,7 @@ function bpdd_admin_page_content(){
 }
 
 /*
- *	Importer engine
+ *	Importer engine - USERS
  */
 function bpdd_import_users(){
 	$users_data = array();
@@ -281,30 +282,64 @@ function bpdd_import_users_profile(){
 	return true;
 }
 
-function bpdd_import_users_messages($users = false){
+function bpdd_import_users_messages(){
 	$messages = array();
 
 	require (dirname(__FILE__) . '/data/messages.php');	
 
 	// first level messages
-	for($i = 0; $i < 100; $i++){
+	for($i = 0; $i < 33; $i++){
 		$messages[] = messages_new_message(array(
 					'sender_id' => bpdd_get_random_users_ids(1, 'string'),
 					'recipients' => bpdd_get_random_users_ids(1, 'array'),
 					'subject' => $messages_subjects[array_rand($messages_subjects)],
 					'content' => $messages_content[array_rand($messages_content)],
-					'date_sent' => bpdd_get_random_date(15)
+					'date_sent' => bpdd_get_random_date(15, 5)
 				));
 	}
 	
+	for($i = 0; $i < 33; $i++){
+		$messages[] = messages_new_message(array(
+					'sender_id' => bpdd_get_random_users_ids(1, 'string'),
+					'recipients' => bpdd_get_random_users_ids(2, 'array'),
+					'subject' => $messages_subjects[array_rand($messages_subjects)],
+					'content' => $messages_content[array_rand($messages_content)],
+					'date_sent' => bpdd_get_random_date(13, 3)
+				));
+	}
+	
+	for($i = 0; $i < 33; $i++){
+		$messages[] = messages_new_message(array(
+					'sender_id' => bpdd_get_random_users_ids(1, 'string'),
+					'recipients' => bpdd_get_random_users_ids(3, 'array'),
+					'subject' => $messages_subjects[array_rand($messages_subjects)],
+					'content' => $messages_content[array_rand($messages_content)],
+					'date_sent' => bpdd_get_random_date(10)
+				));
+	}
+	
+	$messages[] = messages_new_message(array(
+				'sender_id' => bpdd_get_random_users_ids(1, 'string'),
+				'recipients' => bpdd_get_random_users_ids(5, 'array'),
+				'subject' => $messages_subjects[array_rand($messages_subjects)],
+				'content' => $messages_content[array_rand($messages_content)],
+				'date_sent' => bpdd_get_random_date(5)
+			));
+	
 	return $messages;
 }
+
 function bpdd_import_users_activity(){
 	return true;
 }
+
 function bpdd_import_users_friends(){
 	return true;
 }
+
+/*
+ *	Importer engine - GROUPS
+ */
 function bpdd_import_groups($users = false){
 	$groups = array();
 	$group_ids = array();
@@ -328,8 +363,57 @@ function bpdd_import_groups($users = false){
 	}
 	return $group_ids;
 }
+
 function bpdd_import_groups_activity(){
 	return true;
+}
+
+function bpdd_import_groups_members($groups = false){
+	$members = array();
+	if(!$groups)
+		$groups = bpdd_get_random_groups_ids(0);
+
+	$new_member = new BP_Groups_Member;
+	foreach($groups as $group_id){
+		
+		$user_ids = bpdd_get_random_users_ids(rand(2, 15));
+
+		foreach($user_ids as $user_id){
+			if ( groups_is_user_member( $user_id, $group_id ) )
+				continue;
+			$time = bpdd_get_random_date(25,1);
+			$new_member->id = false;
+			$new_member->group_id = $group_id;
+			$new_member->user_id = $user_id;
+			$new_member->inviter_id = 0;
+			$new_member->is_admin = 0;
+			$new_member->user_title = '';
+			$new_member->date_modified = $time;
+			$new_member->is_confirmed = 1;
+
+			// save data - finally
+			if($new_member->save()){
+				$group = new BP_Groups_Group( $group_id );
+				// record this in activity streams
+				$activity_id[] = groups_record_activity( array(
+					'action'  => apply_filters( 'groups_activity_joined_group', sprintf( __( '%1$s joined the group %2$s', 'buddypress'), bp_core_get_userlink( $user_id ), '<a href="' . bp_get_group_permalink( $group ) . '">' . esc_attr( bp_get_group_name( $group ) ) . '</a>' ) ),
+					'type'    => 'joined_group',
+					'item_id' => $group_id,
+					'user_id' => $user_id,
+					'recorded_time' => $time
+				) );
+				
+				// modify group meta
+				groups_update_groupmeta( $group_id, 'total_member_count', (int) groups_get_groupmeta( $group_id, 'total_member_count') + 1 );
+				groups_update_groupmeta( $group_id, 'last_activity', $time );
+				do_action( 'groups_join_group', $group_id, $user_id );
+				// I need to know how many users were added to display in report after the import
+				$members[] = $group_id;
+			}
+		}
+	}
+
+	return $members;
 }
 function bpdd_import_groups_forums(){
 	return true;
@@ -338,24 +422,44 @@ function bpdd_import_groups_forums(){
 /*
  *	Helpers
  */
-function bpdd_get_random_users_ids($count = 1, $output = 'array'){
-	$was = array();
-	$users = array();
-	$users = get_users();
-	$all = count($users);
-		
-	for( $i = 0; $i < $count; $i++ ){
-		$cur = array_rand($users);
-		if(in_array($cur, $was))
-			$cur = array_rand($users);
-		$random[] = $users[$cur]->ID;
-		$was[] = $cur;
-	}
+function bpdd_get_random_groups_ids($count = 1, $output = 'array'){
+	global $wpdb;
+	$groups = array();
+	$data = array();
+	$limit = '';
+	if($count > 0)
+		$limit = ' LIMIT ' . $count;
+	$sql = 'SELECT id FROM ' . $wpdb->prefix . 'bp_groups ORDER BY rand()' . $limit;
+	$groups = $wpdb->get_results($wpdb->prepare($sql));
 
+	// reformat the array
+	foreach($groups as $group){
+		$data[] = $group->id;
+	}
+	
 	if($output == 'array'){
-		return $random;
+		return $data;
 	}elseif($output == 'string'){
-		return implode(',', $random);
+		return implode(',', $data);
+	}
+}
+
+function bpdd_get_random_users_ids($count = 1, $output = 'array'){
+	global $wpdb;
+	$users = array();
+
+	$sql = 'SELECT ID FROM ' . $wpdb->prefix . 'users ORDER BY rand() LIMIT ' . $count;
+	$users = $wpdb->get_results($wpdb->prepare($sql));
+
+	// reformat the array
+	foreach($users as $user){
+		$data[] = $user->ID;
+	}
+	
+	if($output == 'array'){
+		return $data;
+	}elseif($output == 'string'){
+		return implode(',', $data);
 	}
 }
 
