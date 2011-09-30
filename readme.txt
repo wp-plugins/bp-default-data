@@ -3,7 +3,7 @@ Contributors: slaFFik
 Tags: buddypress, members, groups, bulk, messages, activity, forums, posts
 Requires at least: 3.2
 Tested up to: 3.2.1
-Stable tag: 0.5
+Stable tag: 0.5.1
 
 Plugin will create lots of users, messages, friends connections, groups, topics, activity items - useful for testing purpose.
 
@@ -28,6 +28,10 @@ And turn off email notifications in profile - or you will spam yourself :)
 1. Admin Page with Status
 
 == Changelog ==
+
+= 0.5.1 =
+* Fixing some compatibility issues
+* better support of forums (check whether they are activated properly or not)
 
 = 0.5 =
 * 0.4 + groups members import (0.1) = 0.5
