@@ -4,14 +4,14 @@
  * Plugin URI:  http://ovirium.com
  * Description: Plugin will create lots of users, groups, topics, activity items - useful for testing purpose.
  * Author:      slaFFik
- * Version:     0.5.1
+ * Version:     0.6
  * Author URI:  http://cosydale.com
  */
 
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
-define('BPDD_VERSION', '0.5.1');
+define('BPDD_VERSION', '0.6');
 
 add_action('bp_init', 'bpdd_init');
 function bpdd_init(){
@@ -41,25 +41,8 @@ function bpdd_admin_page_content(){
 
         <?php 
         if(isset($_POST['bpdd-admin-clear']) && !empty($_POST['bpdd-admin-clear'])){
-            global $wpdb;
-            $sqls[] = "TRUNCATE TABLE {$wpdb->prefix}bp_groups;";
-            $sqls[] = "TRUNCATE TABLE {$wpdb->prefix}bp_groups_members;";
-            $sqls[] = "TRUNCATE TABLE {$wpdb->prefix}bp_groups_groupmeta;";
-            $sqls[] = "TRUNCATE TABLE {$wpdb->prefix}bb_posts;";
-            $sqls[] = "TRUNCATE TABLE {$wpdb->prefix}bp_messages_recipients;";
-            $sqls[] = "TRUNCATE TABLE {$wpdb->prefix}bp_messages_messages;";
-            $sqls[] = "TRUNCATE TABLE {$wpdb->prefix}bp_notifications;";
-            $sqls[] = "TRUNCATE TABLE {$wpdb->prefix}bp_friends;";
-            $sqls[] = "DELETE FROM {$wpdb->prefix}users WHERE ID > 1;";
-            $sqls[] = "DELETE FROM {$wpdb->prefix}usermeta WHERE user_id > 1;";
-            //$sqls[] = "DELETE FROM {$wpdb->prefix}usermeta WHERE total_friend_count ";
-            $sqls[] = "DELETE FROM {$wpdb->prefix}bp_xprofile_data WHERE user_id > 1;";
-            $sqls[] = "DELETE FROM {$wpdb->prefix}bb_forums WHERE forum_id > 1;";
-            $sqls[] = "DELETE FROM {$wpdb->prefix}bp_activity WHERE user_id > 1;";
-            foreach($sqls as $sql){
-                $wpdb->query( $sql );
-            }
-            echo '<div id="message" class="updated fade"><p>Everything deleted</p></div>';
+            bpdd_clear_db();
+            echo '<div id="message" class="updated fade"><p>'.__('Everything was deleted', 'bpdd') .'</p></div>';
         }
         
         if ( isset( $_POST['bpdd-admin-submit'] ) ) {
@@ -79,7 +62,7 @@ function bpdd_admin_page_content(){
                 $users = bpdd_import_users();
                 $imported['users'] = count($users) . ' new users';
                 if(isset($_POST['bpdd']['import-profile'])){
-                    $profile = bpdd_import_users_profile($users);
+                    $profile = bpdd_import_users_profile();
                     $imported['profile'] = count($profile) .' profile entries';
                 }
                 if(isset($_POST['bpdd']['import-messages'])){
@@ -87,12 +70,12 @@ function bpdd_admin_page_content(){
                     $imported['messages'] = count($messages) .' private messages';
                 }
                 if(isset($_POST['bpdd']['import-activity'])){
-                    $activity = bpdd_import_users_activity($users);
+                    $activity = bpdd_import_users_activity();
                     $imported['activity'] = count($activity) .' activity items';
                 }
                 if(isset($_POST['bpdd']['import-friends'])){
-                    $friends = bpdd_import_users_friends($users);
-                    $imported['friends'] = count($friends) .' friends connections';
+                    $friends = bpdd_import_users_friends();
+                    $imported['friends'] = $friends .' friends connections';
                 }
             }
             // Import groups
@@ -180,8 +163,8 @@ function bpdd_admin_page_content(){
                         <?php if ( bp_is_active( 'friends' ) ) : ?>
                             <li>
                                 <label for="import-friends">
-                                    <input type="checkbox" disabled name="bpdd[import-friends]" id="import-friends" value="1" /> &nbsp;
-                                    <?php _e( 'Do you want to create some friend connections between imported users?', 'bpdd' ) ?>
+                                    <input type="checkbox" name="bpdd[import-friends]" id="import-friends" value="1" /> &nbsp;
+                                    <?php _e( 'Do you want to create some friends connections between imported users?', 'bpdd' ) ?>
                                 </label>
                             </li>
                         <?php endif; ?>
@@ -247,7 +230,8 @@ function bpdd_admin_page_content(){
             </p>
 
             <p><?php _e('Many thanks to <a href="http://imdb.com" target="_blank">IMDB.com</a> for movies titles (groups names), <a href="http://en.wikipedia.org" target="_blank">Wikipedia.org</a> (users names) and <a href="http://en.wikipedia.org/wiki/Lorem_ipsum" target="_blank">Lorem Ipsum</a> (activity and forum posts).', 'bpdd') ?></p>
-            
+            <p><?php _e('All users have the same password: <code>1234567890</code>', 'bpdd') ?></p>
+            <p><?php _e('Friends connections don\'t produce notifications, while messages importing do.', 'bpdd') ?></p>
             <?php wp_nonce_field( 'bpdd-admin' );   ?>
 
         </form>
@@ -337,7 +321,22 @@ function bpdd_import_users_activity(){
 }
 
 function bpdd_import_users_friends(){
-    return true;
+    $users = bpdd_get_random_users_ids(50);
+
+    for($con = 0, $i = 0; $i < 100; $i++){
+        $user_one = $users[array_rand($users)];
+        $user_two = $users[array_rand($users)];
+        if(BP_Friends_Friendship::check_is_friend( $user_one, $user_two ) == 'not_friends'){
+            // make them friends
+            if(friends_add_friend( $user_one, $user_two, true )){
+                // update counters for front-end
+                friends_update_friend_totals($user_one, $user_two);
+                $con++;
+            }
+        }
+    }
+    
+    return $con;
 }
 
 /*
@@ -423,6 +422,7 @@ function bpdd_import_groups_members($groups = false){
 
     return $members;
 }
+
 function bpdd_import_groups_forums(){
     return true;
 }
@@ -430,6 +430,27 @@ function bpdd_import_groups_forums(){
 /*
  *  Helpers
  */
+function bpdd_clear_db(){
+    global $wpdb;
+    $sqls[] = "TRUNCATE TABLE {$wpdb->prefix}bp_groups;";
+    $sqls[] = "TRUNCATE TABLE {$wpdb->prefix}bp_groups_members;";
+    $sqls[] = "TRUNCATE TABLE {$wpdb->prefix}bp_groups_groupmeta;";
+    $sqls[] = "TRUNCATE TABLE {$wpdb->prefix}bb_posts;";
+    $sqls[] = "TRUNCATE TABLE {$wpdb->prefix}bp_messages_recipients;";
+    $sqls[] = "TRUNCATE TABLE {$wpdb->prefix}bp_messages_messages;";
+    $sqls[] = "TRUNCATE TABLE {$wpdb->prefix}bp_notifications;";
+    $sqls[] = "TRUNCATE TABLE {$wpdb->prefix}bp_friends;";
+    $sqls[] = "DELETE FROM {$wpdb->prefix}users WHERE ID > 1;";
+    $sqls[] = "DELETE FROM {$wpdb->prefix}usermeta WHERE user_id > 1;";
+    $sqls[] = "DELETE FROM {$wpdb->prefix}usermeta WHERE meta_key = 'total_friend_count';";
+    $sqls[] = "DELETE FROM {$wpdb->prefix}bp_xprofile_data WHERE user_id > 1;";
+    $sqls[] = "DELETE FROM {$wpdb->prefix}bb_forums WHERE forum_id > 1;";
+    $sqls[] = "DELETE FROM {$wpdb->prefix}bp_activity WHERE user_id > 1;";
+    foreach($sqls as $sql){
+        $wpdb->query( $sql );
+    }
+}
+ 
 function bpdd_get_random_groups_ids($count = 1, $output = 'array'){
     global $wpdb;
     $groups = array();
@@ -483,4 +504,18 @@ function bpdd_get_random_date($days_from = 30, $days_to = 0){
     $date_from = time() - $from;
     $date_to = time() - $to;
     return date( 'Y-m-d H:i:s', rand($date_from, $date_to));
+}
+
+if(!function_exists('print_var')){
+    function print_var($var, $die = false){
+        echo '<pre>';
+        if (!empty($var))
+            print_r($var);
+        else
+            var_dump($var);
+        echo '</pre>';
+        
+        if ($die)
+            die;
+    }
 }
