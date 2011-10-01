@@ -30,7 +30,7 @@ And turn off email notifications in profile - or you will spam yourself :)
 == Changelog ==
 
 = 0.6 =
-* 0.5 + friends connection between imported users (0.1) = 0.6
+* 0.5 + friends connections between imported users (0.1) = 0.6
 * Released for Paul Gibbs (@pgibbs) :)
 
 = 0.5.1 =
