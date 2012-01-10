@@ -1,5 +1,5 @@
 === BuddyPress Default Data ===
-Contributors: slaFFik
+Contributors: slaFFik, valant
 Tags: buddypress, members, groups, bulk, messages, activity, forums, posts
 Requires at least: WordPress 3.2.1 and BuddyPress 1.5
 Tested up to: WordPress 3.2.1 and BuddyPress 1.5
