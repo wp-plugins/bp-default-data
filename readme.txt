@@ -23,7 +23,7 @@ And turn off email notifications in profile - or you will spam yourself :)
 
 1. Upload plugin folder `/bp-default-data/` to the `/wp-content/plugins/` directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Go to Default Data page under BuddyPress menu and do what you want.
+1. Go to "Tools -> BP Default Data" page (if ordinary WP) or "Network Admin -> Settings -> BP Default Data" page (if WPMS) and do what you want.
 
 == Screenshots ==
 
